@@ -13,8 +13,9 @@ PINECONE_INDEX_NAME = "crm-articles-rag"
 
 # --- AWS Bedrock Configuration ---
 EMBEDDING_MODEL_ID = "amazon.titan-embed-text-v2:0"
-GENERATOR_MODEL_ID = "us.meta.llama3-2-11b-instruct-v1:0"
+#GENERATOR_MODEL_ID = "us.meta.llama3-2-11b-instruct-v1:0"
 #GENERATOR_MODEL_ID = "meta.llama3-8b-instruct-v1:0"
+GENERATOR_MODEL_ID = "us.meta.llama3-2-90b-instruct-v1:0"
 
 EMBEDDING_DIMENSION = 1024
 
