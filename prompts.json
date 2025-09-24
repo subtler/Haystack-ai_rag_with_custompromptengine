@@ -1,0 +1,9 @@
+{
+  "query_rewriter": {
+    "template": "Given the following conversation history and a follow-up question, rephrase the follow-up question to be a standalone question that captures all the necessary context from the history. If the follow-up question is already a standalone question, just return it as is.\n\n**History:**\n{% for message in history %}\n  - {{ 'User' if message.is_from_user() else 'Assistant' }}: {{ message.text }}\n{% endfor %}\n\n**Follow-up Question:** {{ query }}\n\n**Standalone Question:**"
+  },
+  "rag_responder": {
+    "template": "You are an expert AI assistant for our CRM system. Your primary goal is to provide accurate and helpful answers based *only* on the context provided below.\n\n**Rules:**\n1. Examine the context carefully before answering.\n2. Your answer must be based solely on the information within the provided documents. Do not use any external knowledge.\n3. If the context does not contain the answer to the question, you must explicitly state: 'I could not find a relevant answer in the provided documents.'\n4. Structure your response with a clear answer first, followed by a list of sources. Use the format 'ANSWER: [Your answer here]' and then 'REFERENCES: [List of document titles used, comma-separated]'.\n\n**Context:**\n{% for doc in documents %}\n  **Document Title:** {{ doc.meta.get('title', 'N/A') }}\n  **Content:**\n  {{ doc.content }}\n  ---\n{% endfor %}\n\n**Question:** {{ query }}\n\n**Structured Response:**"
+  }
+}
+    
