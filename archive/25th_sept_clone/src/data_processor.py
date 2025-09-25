@@ -2,26 +2,34 @@
 
 import json
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import List
 
 from bs4 import BeautifulSoup
 from haystack import Document
 
-def process_json_data(data: List[Dict[str, Any]]) -> List[Document]:
+def load_and_process_data(file_path: Path) -> List[Document]:
     """
-    Processes a list of dictionaries (from a JSON object) and prepares Haystack Documents.
-    This is the core processing logic.
+    Loads JSON data, cleans HTML content, and prepares Haystack Documents
+    with consistent IDs to enable overwriting.
     """
     documents = []
+    print(f"Loading data from {file_path}...")
+    with open(file_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
     for category in data:
         for folder in category.get("folders", []):
             for article in folder.get("articles", []):
+                
+                # --- MODIFICATION 1: Explicitly use 'description_text' ---
+                # This ensures we always use the clean, plain-text version.
                 content_to_process = article.get('description_text', '')
                 title = article.get('title', '')
                 
                 raw_content = f"{title}. {content_to_process}"
                 clean_content = BeautifulSoup(raw_content, "html.parser").get_text().strip()
                 
+                # Ensure the document has an ID and content before processing
                 if clean_content and article.get("id"):
                     metadata = {
                         "article_id": article.get("id"),
@@ -31,6 +39,8 @@ def process_json_data(data: List[Dict[str, Any]]) -> List[Document]:
                         "tags": article.get("tags", []),
                     }
                     
+                    # --- MODIFICATION 2: Assign a consistent ID to the Document ---
+                    # This is crucial for overwriting existing documents in Pinecone.
                     doc_id = str(article.get("id"))
                     
                     documents.append(
@@ -40,15 +50,6 @@ def process_json_data(data: List[Dict[str, Any]]) -> List[Document]:
                             meta=metadata
                         )
                     )
-    print(f"Successfully processed {len(documents)} documents from JSON data.")
+    
+    print(f"Successfully loaded and processed {len(documents)} documents.")
     return documents
-
-def load_and_process_data(file_path: Path) -> List[Document]:
-    """
-    Loads a JSON file from a given path and processes it.
-    This function is a convenient wrapper for file-based operations.
-    """
-    print(f"Loading data from file: {file_path}...")
-    with open(file_path, "r", encoding="utf-8") as f:
-        json_data = json.load(f)
-    return process_json_data(json_data)
