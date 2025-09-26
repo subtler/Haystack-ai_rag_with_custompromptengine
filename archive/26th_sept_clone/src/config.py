@@ -13,16 +13,12 @@ PINECONE_INDEX_NAME = "crm-articles-rag"
 
 # --- AWS Bedrock Configuration ---
 EMBEDDING_MODEL_ID = "amazon.titan-embed-text-v2:0"
-GENERATOR_MODEL_ID = "us.meta.llama3-2-90b-instruct-v1:0" # The model for the main RAG pipeline
 #GENERATOR_MODEL_ID = "us.meta.llama3-2-11b-instruct-v1:0"
 #GENERATOR_MODEL_ID = "meta.llama3-8b-instruct-v1:0"
+GENERATOR_MODEL_ID = "us.meta.llama3-2-90b-instruct-v1:0"
 
 EMBEDDING_DIMENSION = 1024
 
 # --- Data Configuration ---
+# Assumes the script is run from the project root (crm_rag_app/)
 DATA_FILE_PATH = Path("data/4dcrm_articles_demo.json")
-
-# --- Evaluation Configuration ---
-# A powerful model is recommended for the "LLM-as-Judge" in Deepeval
-EVALUATION_MODEL_ID = "us.meta.llama3-2-90b-instruct-v1:0"
-
