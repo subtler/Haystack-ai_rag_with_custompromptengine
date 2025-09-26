@@ -1,28 +1,29 @@
 # src/data_processor.py
 
 import json
-from pathlib import Path
 from typing import List, Dict, Any
+from pathlib import Path
 
 from bs4 import BeautifulSoup
 from haystack import Document
 
-def process_json_data(data: List[Dict[str, Any]]) -> List[Document]:
+def process_json_data(json_data: List[Dict[str, Any]]) -> List[Document]:
     """
-    Processes a list of dictionaries (from a JSON object) and prepares Haystack Documents.
-    This is the core processing logic.
+    Processes a list of dictionary objects into Haystack Documents.
     """
     documents = []
-    for category in data:
+    for category in json_data:
         for folder in category.get("folders", []):
             for article in folder.get("articles", []):
-                content_to_process = article.get('description_text', '')
                 title = article.get('title', '')
+                description = article.get('description_text', '')
                 
-                raw_content = f"{title}. {content_to_process}"
+                raw_content = f"{title}. {description}"
                 clean_content = BeautifulSoup(raw_content, "html.parser").get_text().strip()
                 
-                if clean_content and article.get("id"):
+                # --- KEY FIX 1: Stricter check to filter out empty/useless documents ---
+                # An article is only valid if it has an ID and meaningful text content.
+                if article.get("id") and clean_content and clean_content != '.':
                     metadata = {
                         "article_id": article.get("id"),
                         "category": category.get("category_name"),
@@ -40,15 +41,16 @@ def process_json_data(data: List[Dict[str, Any]]) -> List[Document]:
                             meta=metadata
                         )
                     )
+    
     print(f"Successfully processed {len(documents)} documents from JSON data.")
     return documents
 
 def load_and_process_data(file_path: Path) -> List[Document]:
     """
-    Loads a JSON file from a given path and processes it.
-    This function is a convenient wrapper for file-based operations.
+    Loads a JSON file from a path and processes it into Haystack Documents.
     """
-    print(f"Loading data from file: {file_path}...")
+    print(f"Loading data from {file_path}...")
     with open(file_path, "r", encoding="utf-8") as f:
-        json_data = json.load(f)
-    return process_json_data(json_data)
+        data = json.load(f)
+    return process_json_data(data)
+
